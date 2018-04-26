@@ -49,11 +49,24 @@ main = hakyll $ do
                     listField "posts" postCtx (return posts) `mappend`
                     constField "title" "Home"                `mappend`
                     defaultContext
-
             getResourceBody
                 >>= applyAsTemplate indexCtx
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
+
+    match "events.html" $ do
+        route idRoute
+        compile $ do
+            events <- recentFirst =<< loadAll "events/*"
+            let eventCtx =
+                    listField "events" postCtx (return events) `mappend`
+                    constField "title" "Events"                `mappend`
+                    defaultContext
+            getResourceBody
+                >>= applyAsTemplate eventCtx
+                >>= loadAndApplyTemplate "templates/default.html" eventCtx
+                >>= relativizeUrls
+
 
     match "templates/*" $ compile templateBodyCompiler
 

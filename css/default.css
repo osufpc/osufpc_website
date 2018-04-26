@@ -1,0 +1,92 @@
+html a, html a:visited {
+    font-family: "Lucida Console", Monaco, monospace;
+    color: grey;
+}
+
+html a:hover {
+    text-decoration: none;
+    color: blue;
+}
+
+img#logo {
+    float: left;
+    margin-top: 5px;
+    height: 125px;
+    width: 150px;
+}
+
+div#main {
+    border-left-style: solid;
+    border-right-style: solid;
+    border-width: 1px;
+    border-color: grey;
+    height: 100%;
+}
+
+div#body {
+    padding-top: 2%;
+}
+
+div#body div.section {
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: grey;
+}
+
+div#body div.section h4 {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 24px;
+}
+
+div.row#header {
+    border-bottom-style: solid;
+    border-color: grey;
+    border-width: 1px;
+    width: 100%;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+nav#links {
+    margin-top: 10px;
+    height: 100%;
+}
+
+div#club_name {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 24px;
+    text-align: center;
+    
+}
+
+div#club_name span {
+    display: inline-block;
+    font-size: 18px;
+    width: 50%;
+    padding-left: 2%;
+}
+
+div#club_name div#name {
+    padding-top: 10%;
+}
+
+li.nav-item {
+    padding-left: 5%;
+
+}
+footer {
+    border-top: solid 1px grey;
+    color: #555;
+    font-size: 12px;
+    margin-top: 30px;
+    padding: 12px 0px 12px 0px;
+    text-align: right;
+}
+
+main {
+    margin-top: 20px;
+}
+
+main h2 {
+    font-family: "Lucida Console", Monaco, monospace;
+}

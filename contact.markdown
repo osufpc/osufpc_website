@@ -28,3 +28,7 @@ find him in `#osufpc` hanging out under the handle `doyougnu`.
 
 ### Webmaster
 #### Will
+Will is a 2nd year PhD student in the theory of algorithms group.
+His research is focused on finding efficient algorithms for optimization problems in topological graph theory.
+He has a strong interest in category theory, and became interested in functional programming after realizing that it offered many great applications for category theory.
+He can be found in `#osufpc` under the name `zahl`.

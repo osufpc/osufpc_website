@@ -92,6 +92,15 @@ footer {
     text-align: right;
 }
 
+footer a, footer a:visited {
+    color: grey; 
+}
+
+footer a:hover {
+    text-decoration: none;
+    color: blue;
+}
+
 main {
     margin-top: 20px;
 }

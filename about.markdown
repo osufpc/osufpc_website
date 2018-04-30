@@ -14,7 +14,7 @@ Likewise we are dedicated to teaching and helping others learn functional
 languages. It is jarring the first time you reach out for another programming
 paradigm and being the functional programming club the least we can do is offer
 our help. We are a mixed bag of experience with members ranging from PhD
-students and Candidates, to first year undergraduates, seniors and master's
+students and candidates, to first year undergraduates, seniors and master's
 students. It doesn't matter who you are as long as you bring your curiosity
 you'll be at home.
 

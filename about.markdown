@@ -12,15 +12,15 @@ you'll fit right in.
 
 Likewise we are dedicated to teaching and helping others learn functional
 languages. It is jarring the first time you reach out for another programming
-paradigm and being the functional programming club the least we can do is offer
+paradigm and as the functional programming club the least we can do is offer
 our help. We are a mixed bag of experience with members ranging from PhD
 students and candidates, to first year undergraduates, seniors and master's
 students. It doesn't matter who you are as long as you bring your curiosity
 you'll be at home.
 
-This is the first year that the club has come into existence and we have had
-overwhelming support from the school, the programming languages group, and all
-of the students that have made it possible, thank you all for your efforts!
+This is the club's nascent year and we have had overwhelming support from the
+school, the programming languages group, and all of the students that have made
+it possible, thank you all for your efforts!
 
 Stay functional,
 

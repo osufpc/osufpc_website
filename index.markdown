@@ -17,7 +17,8 @@ occasionally hold hackathons. We are open to any other events according to
 members' requests.
 
 ### When we meet
-TBD
+**Where**: KEC 1007<br/>
+**When**: Every Monday @ 6:00 pm
 
 ### How to Participate
 Participation is voluntary and non-compulsory, you can just show up and start

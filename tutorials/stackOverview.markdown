@@ -1,7 +1,7 @@
 ---
-title: Stack: A Haskell build tool Overview
+title: "Stack: A Haskell build tool Overview"
 author: Jeffrey Young
-page: stack_overview.html
+page: stackOverview.html
 ---
 
 ### Motivation and Precursor

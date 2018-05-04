@@ -65,7 +65,6 @@ div#club_name {
     font-family: "Lucida Console", Monaco, monospace;
     font-size: 24px;
     text-align: center;
-    
 }
 
 div#club_name span {
@@ -80,9 +79,10 @@ div#club_name div#name {
 }
 
 li.nav-item {
-    padding-left: 5%;
-
+    padding-left: 10px;
+    padding-right: 10px;
 }
+
 footer {
     border-top: solid 1px grey;
     color: #555;
@@ -93,7 +93,7 @@ footer {
 }
 
 footer a, footer a:visited {
-    color: grey; 
+    color: grey;
 }
 
 footer a:hover {

@@ -34,3 +34,5 @@ main = do
                                 , " "
                                 , format fp onid `append` "@" `append` server
                                 ]) empty
+
+  echo "MAKE SURE YOU COMMIT YOUR CHANGES TO THE REPO!!!"

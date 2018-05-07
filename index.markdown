@@ -17,7 +17,7 @@ occasionally hold hackathons. We are open to any other events according to
 members' requests.
 
 ### When we meet
-**Where**: KEC 1007<br/>
+**Where**: KEC 1005<br/>
 **When**: Every Monday @ 6:00 pm
 
 ### How to Participate

@@ -29,7 +29,7 @@ main = do
   shell "find _site/ -type f -exec chmod 644 {} \\;" empty
 
   -- now we scp the site out to public_html
-  shell ("scp " `append` concat ["-r "
+  shell ("rsync " `append` concat ["-av "
                                 , folder
                                 , " "
                                 , format fp onid `append` "@" `append` server

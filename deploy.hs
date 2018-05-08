@@ -28,7 +28,7 @@ main = do
   shell "find _site/ -type d -exec chmod 755 {} \\;" empty
   shell "find _site/ -type f -exec chmod 644 {} \\;" empty
 
-  -- now we scp the site out to public_html
+  -- now we rsync the site out to public_html
   shell ("rsync " `append` concat ["-av "
                                 , folder
                                 , " "

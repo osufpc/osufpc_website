@@ -5,11 +5,9 @@
 
 -- | Run me with ./deploy.hs !!!
 
-import Prelude hiding (concat)
-import Turtle hiding (append)
-import Turtle.Options
-import Data.Text (Text,append, concat)
--- scp -r _site/* youngjef@access.engr.oregonstate.edu:/nfs/farm/groups/fpc/public_html
+import Turtle (shell, empty, format, fp, argPath, echo)
+import Turtle.Options (options)
+import Data.Text (Text,append,concat)
 
 parser = argPath "onid" "Your onid username"
 
@@ -29,10 +27,10 @@ main = do
   shell "find _site/ -type f -exec chmod 644 {} \\;" empty
 
   -- now we rsync the site out to public_html
-  shell ("rsync " `append` concat ["-av "
-                                , folder
-                                , " "
-                                , format fp onid `append` "@" `append` server
-                                ]) empty
+  shell ("rsync " `append` mconcat ["-av "
+                                  , folder
+                                  , " "
+                                  , format fp onid `append` "@" `append` server
+                                  ]) empty
 
   echo "MAKE SURE YOU COMMIT YOUR CHANGES TO THE REPO!!!"

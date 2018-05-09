@@ -28,5 +28,6 @@ hang out with us online by:
   * IRC
     `osufpc` on `irc.freenode.net`
   * Mailing List
-    Start chatting or send a question via `fpc@lists.oregonstate.edu` and
-    someone will get back to you
+    Send a question via `fpc@lists.oregonstate.edu`, or join
+    [here](https://lists.oregonstate.edu/mailman/listinfo/fpc) we'll get back to
+    you.

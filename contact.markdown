@@ -4,8 +4,8 @@ date: 2018-04-27
 ---
 
 Our de facto method of communication is the [mailing
-list](fpc@lists.oregonstate.edu). Likewise there are always people hanging out
-in the `#osufpc` channel on `irc.freenode.net`.
+list](https://lists.oregonstate.edu/mailman/listinfo/fpc). Likewise there are
+always people hanging out in the `#osufpc` channel on `irc.freenode.net`.
 
 You do not have to be a member of the club or OSU student to join either, just
 friendly and willing to learn.

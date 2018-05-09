@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Run me with ./deploy.hs !!!
+-- | Or compile me with  stack ghc -- -O2 -threaded -dynamic deploy.hs
 
 import Turtle (shell, empty, format, fp, argPath, echo)
 import Turtle.Options (options)

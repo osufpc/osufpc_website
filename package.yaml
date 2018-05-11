@@ -23,6 +23,7 @@ dependencies:
 - hjsmin == 0.2.*
 - text
 - turtle
+- foldl
 
 library:
   source-dirs: []

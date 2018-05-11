@@ -325,16 +325,81 @@ to files.
 main :: IO ()
 main = dumpTofile "tmp"
 
-dumpTofile file = output file . return . mconcat $ ((repr .) .) . (,,) <$> [1.200] <*> ['a'..'z'] <*> ['a'..'z']
+dumpTofile file = output file . return . mconcat 1 $$ ((repr .) .) . (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
 ```
 
-You'll notice I did some fancy intermediate tricks here. Starting from the
-right, I use applicatives to construct a list of 3-tuples that will have every
-combination of `[1..200]`, `['a'..'z']`, and `['a'..'z']`. I then convert it to
-`[Line]` by composing a ternary function `(,,)` with a unary function `repr`.
-Then because lists are monoids I can collapse them to a single value using
-`mconcat :: Monoid a => [a] -> a`. I then lift that result to the `Shell` level
-via `return` and send that to the output function which will write to the file. If we run the script we'll get what we expect, namely a file full of junk data:
+You'll notice I did some fancy tricks here. Starting from the right, I use
+applicatives to construct a list of 3-tuples that will have every combination of
+`[1..200]`, `['a'..'z']`, and `['a'..'z']`. I then convert it to `[Line]` by
+composing a ternary function `(,,)` with a unary function `repr`. Then because
+lists are monoids I can collapse them to a single value using `mconcat :: Monoid
+a => [a] -> a`. I then lift that result to the `Shell` level via `return` and
+send that to the output function which will write to the file. If we run the
+script we'll get what we expect, namely a file full of junk data:
 
 ```
+~/P/o/tutorial_code> head -c 1000 "tmp"
+(1,'a','a')(1,'a','b')(1,'a','c')(1,'a','d')(1,'a','e')(1,'a','f')(1,'a','g')(1,'a','h')(1,'a','i')(1,'a','j')(1,'a','k')(1,'a','l')(1,'a','m')(1,'a','n')(1,'a','o')(1,'a','p')(1,'a','q')(1,'a','r')(1,'a','s')(1,'a','t')(1,'a','u')(1,'a','v')(1,'a','w')(1,'a','x')(1,'a','y')(1,'a','z')(1,'b','a')(1,'b','b')(1,'b','c')(1,'b','d')(1,'b','e')(1,'b','f')(1,'b','g')(1,'b','h')(1,'b','i')(1,'b','j')(1,'b','k')(1,'b','l')(1,'b','m')(1,'b','n')(1,'b','o')(1,'b','p')(1,'b','q')(1,'b','r')(1,'b','s')(1,'b','t')(1,'b','u')(1,'b','v')(1,'b','w')(1,'b','x')(1,'b','y')
 ```
+
+And we can read in all the data in "tmp" using the `input` function like this:
+
+```
+Prelude> :t input
+input :: Turtle.FilePath -> Shell Line
+
+main :: IO ()
+main = view 2 $$ input "tmp" -- will print the whole file because we consume the stream immediately
+```
+
+### Folding over streams
+We can fold over turtle streams using the `Control.Foldl` library. This library
+gives us strict left folds that are extremely fast and memory efficient.
+Basically instead of writing a normal fold using `foldl` or `foldr` the library
+stores datatypes for common folds that hold the step function for the fold and a
+starting state. Then we can use Applicative Factors to combine any folds we
+want, efficiently, in a single pass of what we are folding. Let's look at some
+code to get a feel for it.
+
+Let's say I have a list of numbers `[1..200]`, and I want to find the sum of
+them, and the average of the list in one pass. Using the `foldl` library, this
+is pretty easy:
+
+```
+import qualified Control.FoldL as L
+
+-- The type
+Prelude> :t L.Fold
+L.fold :: Foldable f => Fold a b -> f a -> b
+
+-- a sum
+-- a Fold a b, processes elements of type a, and results in values of type b
+Prelude> :t L.sum
+L.sum :: Num a => Fold a a
+
+-- sum a stream function
+sumStream :: Num a => [a] -> a
+sumStream = L.fold L.sum
+
+-- and a test
+Prelude> sumStream [1..200]
+20100
+
+-- An average, defined Applicatively, is the sum over the count
+average :: Fold Double Double
+average = (/) <$> L.sum <*> L.genericLength
+
+avgStream :: (Foldable f, Fractional a) => f a -> a
+avgStream = L.fold average
+
+-- average test
+Prelude> avgStream [1..200]
+100.5
+
+-- Now we can combine them, also using applicatives
+Prelude> L.fold ((,) <$> L.sum <*> average) [1..200]
+(20100.0,100.5)
+```
+
+In the same way we can use folds over the `Shell` type because the `Shell` type
+in turtle is a stream. First

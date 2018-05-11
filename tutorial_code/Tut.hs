@@ -1,5 +1,5 @@
 #!/usr/bin/env stack
--- stack --resolver lts-11.7 script
+-- stack --resolver lts-11.7 script --nix
 
 
 -- ghc extension to make dealing with strings easier
@@ -10,6 +10,7 @@ import Turtle
 import Turtle.Line
 import Control.Monad (liftM)
 import qualified Data.Text as T
+import qualified Control.Foldl as L
 
 -- example = do                        --
 --     x <- select [1, 2]              -- for x in 1 2; do
@@ -21,7 +22,7 @@ import qualified Data.Text as T
 -- main = ls . stdin
 
 main :: IO ()
-main = dumpTofile "tmp"
+main = view $ input "tmp" -- will print the whole file
 
 -- | just a trivial wrapper around ls
 getAllFilesinDir :: IO ()
@@ -70,4 +71,14 @@ optIntParser = (,) <$> argInt "firstInt" "The First Integer"
 
 -- cat' = stdout stdin
 
-dumpTofile file = output file . return . mconcat $ ((repr .) .) . (,,) <$> [1.200] <*> ['a'..'z'] <*> ['a'..'z']
+dumpTofile file = output file . return . mconcat $ ((repr .) .) . (,,) <$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
+
+sumStream :: Num a => [a] -> a
+sumStream = L.fold L.sum
+
+-- average :: (Fractional a, Num a) => [a] -> a
+average :: (Fractional a) => Fold a a
+average = (/) <$> L.sum <*> L.genericLength
+
+avgStream :: (Foldable f, Fractional a) => f a -> a
+avgStream = L.fold average

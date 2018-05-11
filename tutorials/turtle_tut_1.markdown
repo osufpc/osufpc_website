@@ -1,6 +1,7 @@
 ---
 title: "Turtle: Scripting in Haskell"
 author: Jeffrey Young
+date: 2018-05-06
 page: turtle_tut_1.html
 ---
 

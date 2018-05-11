@@ -1,6 +1,7 @@
 ---
 title: "Stack: A Haskell build tool Overview"
 author: Jeffrey Young
+date: 2018-05-01
 page: stackOverview.html
 ---
 

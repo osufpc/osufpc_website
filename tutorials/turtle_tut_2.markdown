@@ -75,7 +75,10 @@ Now you may be a little concerned about the crazy parser function. In fact you
 might have never seen applicative functors like that before. I won't go over
 them in detail, but suffice it to say that they are somewhere between a functor,
 and a monad, see chapter 11 in [LYAH](http://learnyouahaskell.com/chapters) if
-you want to get into it. The way that they are being used here is one of the beautiful things about haskell. In essence we are describing an applicative parser. The particular form in we are using it requires some more detailed explantion. First let's look at types:
+you want to get into it. The way that they are being used here is one of the
+beautiful things about haskell. In essence we are describing an applicative
+parser. The particular form  we are using it requires some more detailed
+explantion. First let's look at types:
 
 ```hs
 Prelude> :t (,)
@@ -88,14 +91,19 @@ Prelude> :t (<*>)
 (<*>) :: Applicative f => f (a -> b) -> f a -> f b
 ```
 
-From the top, the `(,)` tuple operator is also a function! The function takes two arguments and constructs a tuple, this is true at the type level as well. The `(,)` **type constructor**  takes two types and constructs the tuple type. In fact let's look at the **type constructor's kind signature**:
+From the top, the `(,)` tuple operator is also a function! The function takes
+two arguments and constructs a tuple, this is true at the type level as well.
+The `(,)` **type constructor** takes two types and constructs the tuple type. In
+fact let's look at the **type constructor's kind signature**:
 
 ```hs
 Prelude> :k (,)
 (,) :: * -> * -> *
 ```
 
-The `:k` is shorthand for `:kind` in `ghci`. Alright now what about the weird dollar sign operator? Well it may look familiar to you if you've been around haskell for a bit. Here let me jog your memory:
+The `:k` is shorthand for `:kind` in `ghci`. Alright now what about the weird
+dollar sign operator? Well it may look familiar to you if you've been around
+haskell for a bit. Here let me jog your memory:
 
 ```hs
 Prelude> :t map
@@ -150,7 +158,8 @@ map :: (a -> b) -> [a] -> [b]
 ```
 
 If this is the first time you are seeing all this then congratulations, you are
-on your way to intermediate haskell! Alright now on to the funky function call. Remember we had this for our parser:
+on your way to intermediate haskell! Alright now on to the funky function call.
+Remember we had this for our parser:
 
 ```
 parser :: Parser (Text, Text)
@@ -178,12 +187,13 @@ this:
 
 And so on. You'll notice I have to call `pure` before all these arguments. That
 is because I need to **lift** them to the applicative level before I can run the
-computation. Applicative are awesome, in fact you can use them on anything that implements the `Applicative` type class:
+computation. Applicatives are awesome, in fact you can use them on anything that
+implements the `Applicative` type class:
 
 ```hs
 -- Like lists
 Prelude> (*) <$$> [1..10] <*> [5..15]
-[5,6,7,8,9,10,11,12,13,14,15,10,12,14,16,18,20,22,24,26,28,30,15,18,21,24,27,30,33,36,39,42,45,20,24,28,32,36,40,44,48,52,56,60,25,30,35,40,45,50,55,60,65,70,75,30,36,42,48,54,60,66,72,78,84,90,35,42,49,56,63,70,77,84,91,98,105,40,48,56,64,72,80,88,96,104,112,120,45,54,63,72,81,90,99,108,117,126,135,50,60,70,80,90,100,110,120,130,140,150]
+[5,6,7,8,9,10,11,12,13,14,15,...]
 
 -- Or Maybes
 Prelude> (*) <$$> Just 5 <*> Just 10
@@ -229,7 +239,8 @@ osufpc_website/tutorial_code | ./Tut.hs 1 2
 "2"
 ```
 
-Ah darn, anything that implements `Show` can be parsed to a `Text`. We should instead use `argInt` to tell turtle that we are expecting an integer:
+Ah darn, anything that implements `Show` can be parsed to a `Text`. We should
+instead use `argInt` to tell turtle that we are expecting an integer:
 
 ```hs
 intParser :: Parser (Int, Int)
@@ -325,7 +336,7 @@ to files.
 main :: IO ()
 main = dumpTofile "tmp"
 
-dumpTofile file = output file $$ foldr1 (<|>) $$ fmap return lines
+dumpTofile file = output file . foldr1 (<|>) $$ fmap return lines
   where
     lines :: [Line]
     lines = ((repr .) .) . (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
@@ -337,7 +348,7 @@ applicatives to construct a list of 3-tuples that will have every combination of
 composing a ternary function `(,,)` with a unary function `repr` with 3 dot
 operators `((repr .) .) . (,,)`. Then I fmap over the list to turn `[Line]` into
 `[Shell Line]`. I then fold over that list using the alternative operator
-`(<|>)` which, in the case of `Shell` concatenates. Lastly, I output the stream
+`(<|>)` which, in the case of `Shell`, concatenates. Lastly, I output the stream
 to "tmp" using turtles `output` function. If we run the script we'll get what we
 expect, namely a file full of junk data:
 
@@ -438,12 +449,12 @@ sumAvg = L.premap fst' ((,) <$$> L.sum <*> average)
 
 Remember that we are defining a fold, that is that the **type** of `sumAvg` is
 going `Fold (Double, a, b) (Double, Double)` because we are taking a 3-tuple,
-just looking at the first argument and calculating the sum and average of that
+looking at the first argument, and calculating the sum and average of that
 element, hence the type of the first element must be `Double` or else we cannot
-call these numeric functions on it. Consequently this leaves the other two types
-in the tuple ambiguous which is fine. Then our fold is **producing** a 2-tuple
-of two `Double`'s. Let's test this out on some data before we get the data from
-the file:
+call these numeric functions on it. Which this leaves the other two types in the
+tuple ambiguous which is fine because we are not using them. Then our fold is
+**producing** a 2-tuple of two `Double`'s. Let's test this out on some data
+before we get the data from the file:
 
 ```hs
 Prelude> L.fold sumAvg $$ (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['b'..'w']
@@ -485,6 +496,38 @@ script. We need to read in the file to get a stream, and then we'll have to
 parse that file to get the data we want, and then fold over that stream calling
 `L.fold sumAvg`. Pretty simple, here we go:
 
+```hs
+-- | We define a parser that'll match exactly what we want. In the case that it fails it returns an empty list
+ourPattern :: Text -> [(Double, Char, Char)]
+ourPattern = match $$ do "("
+                        first <- decimal
+                        junk
+                        second <- anyChar
+                        junk
+                        third <- anyChar
+                        junk
+                        ")"
+                        return (fromIntegral first, second, third) -- fromIntegral to coerce to double
+  where junk = star $$ char ',' <|> char '\''
+
+-- | Then we define a parse function that parses a Line to the 3-tuple
+parse :: Line -> (Double, Char, Char)
+parse = head . ourPattern . lineToText
+
+-- | Finally we define the fold we want that'll perform the calculation
+consume :: Fold Line (Double, Double)
+consume = L.premap parse sumAvg
+
+-- | And now we can tie it all together and run it in main
+readAndSumAvg :: MonadIO io => Turtle.FilePath -> io (Double, Double)
+readAndSumAvg = flip fold consume . input
+
+-- | This is equivalent to readAndSumAvg "tmp" >>= print, for those of you who know monads
+main :: IO ()
+main = do result <- readAndSumAvg "tmp"
+          print result
 ```
 
-```
+Great! That wasn't so bad. You'll notice that I used a `Pattern` type to parse
+the file and didn't go over them. That was purposeful and will be covered in the
+next tutorial. See you then!

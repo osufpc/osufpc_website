@@ -23,7 +23,9 @@ import Data.Maybe (isJust, fromJust)
 -- main = ls . stdin
 
 main :: IO ()
-main = readAndSumAvg "tmp" >>= print
+main = do result <- readAndSumAvg "tmp"
+          print result
+
 -- main = view $ do
 --   l <- input "tmp"
 --   p <- select (parse $ l)
@@ -102,7 +104,6 @@ sumAvg = L.premap fst' ((,) <$> L.sum <*> average)
   where fst' (x,_,_) = x
 
 readAndSumAvg :: MonadIO io => Turtle.FilePath -> io (Double, Double)
--- readAndSumAvg file = fold (input file) consume
 readAndSumAvg = flip fold consume . input
 
 parse :: Line -> (Double, Char, Char)

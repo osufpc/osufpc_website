@@ -19,8 +19,8 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- hakyll == 4.9.*
-- hjsmin == 0.2.*
+- hakyll == 4.*
+- hjsmin == 0.*
 - text
 - turtle
 - foldl

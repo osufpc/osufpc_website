@@ -11,6 +11,7 @@ import Turtle.Line
 import Control.Monad (liftM)
 import qualified Data.Text as T
 import qualified Control.Foldl as L
+import Data.Maybe (isJust, fromJust)
 
 -- example = do                        --
 --     x <- select [1, 2]              -- for x in 1 2; do
@@ -22,7 +23,11 @@ import qualified Control.Foldl as L
 -- main = ls . stdin
 
 main :: IO ()
-main = view $ input "tmp" -- will print the whole file
+main = readAndSumAvg "tmp" >>= print
+-- main = view $ do
+--   l <- input "tmp"
+--   p <- select (parse $ l)
+--   return p
 
 -- | just a trivial wrapper around ls
 getAllFilesinDir :: IO ()
@@ -71,7 +76,11 @@ optIntParser = (,) <$> argInt "firstInt" "The First Integer"
 
 -- cat' = stdout stdin
 
-dumpTofile file = output file . return . mconcat $ ((repr .) .) . (,,) <$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
+dumpTofile file = output file $ foldr1 (<|>) $ fmap return lines
+  where
+    lines :: [Line]
+    lines = ((repr .) .) . (,,) <$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
+
 
 sumStream :: Num a => [a] -> a
 sumStream = L.fold L.sum
@@ -82,3 +91,34 @@ average = (/) <$> L.sum <*> L.genericLength
 
 avgStream :: (Foldable f, Fractional a) => f a -> a
 avgStream = L.fold average
+
+-- | We can define our own folds using the Fold constructor. We just need to
+-- provide the step function, initial value and the extraction operation. If you
+-- know anything about profunctors this may tickle your fancy
+myFold f initial = Fold (\acc (e,_,_) -> e `f` acc) initial id
+
+sumAvg :: Fold (Double, t1, t) (Double, Double)
+sumAvg = L.premap fst' ((,) <$> L.sum <*> average)
+  where fst' (x,_,_) = x
+
+readAndSumAvg :: MonadIO io => Turtle.FilePath -> io (Double, Double)
+-- readAndSumAvg file = fold (input file) consume
+readAndSumAvg = flip fold consume . input
+
+parse :: Line -> (Double, Char, Char)
+parse = head . ourPattern . lineToText
+
+consume :: Fold Line (Double, Double)
+consume = L.premap parse sumAvg
+
+ourPattern :: Text -> [(Double, Char, Char)]
+ourPattern = match $ do "("
+                        first <- decimal
+                        junk
+                        second <- anyChar
+                        junk
+                        third <- anyChar
+                        junk
+                        ")"
+                        return (fromIntegral first, second, third) -- fromIntegral to coerce to double
+  where junk = star $ char ',' <|> char '\''

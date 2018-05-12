@@ -9,8 +9,8 @@ page: turtle_tut_2.html
 Last time I tried to introduce some of the basics of the turtle library for
 scripting with Haskell. I thought that post was too word heavy, in this post I
 want to have more code snippets that we can actually analyze and talk about. So
-I'll be going over command line arguments, basic IO, folding streams of data and
-running external commands.
+I'll be going over command line arguments, basic IO, and folding streams of
+data.
 
 ### Command Line Arguments
 Let's look at the simplest possible script. We'll import some command line
@@ -325,21 +325,46 @@ to files.
 main :: IO ()
 main = dumpTofile "tmp"
 
-dumpTofile file = output file . return . mconcat 1 $$ ((repr .) .) . (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
+dumpTofile file = output file $$ foldr1 (<|>) $$ fmap return lines
+  where
+    lines :: [Line]
+    lines = ((repr .) .) . (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['a'..'z']
 ```
 
-You'll notice I did some fancy tricks here. Starting from the right, I use
+You'll notice I did some fancy tricks here. Starting with `lines`, I use
 applicatives to construct a list of 3-tuples that will have every combination of
 `[1..200]`, `['a'..'z']`, and `['a'..'z']`. I then convert it to `[Line]` by
-composing a ternary function `(,,)` with a unary function `repr`. Then because
-lists are monoids I can collapse them to a single value using `mconcat :: Monoid
-a => [a] -> a`. I then lift that result to the `Shell` level via `return` and
-send that to the output function which will write to the file. If we run the
-script we'll get what we expect, namely a file full of junk data:
+composing a ternary function `(,,)` with a unary function `repr` with 3 dot
+operators `((repr .) .) . (,,)`. Then I fmap over the list to turn `[Line]` into
+`[Shell Line]`. I then fold over that list using the alternative operator
+`(<|>)` which, in the case of `Shell` concatenates. Lastly, I output the stream
+to "tmp" using turtles `output` function. If we run the script we'll get what we
+expect, namely a file full of junk data:
 
 ```
-~/P/o/tutorial_code> head -c 1000 "tmp"
-(1,'a','a')(1,'a','b')(1,'a','c')(1,'a','d')(1,'a','e')(1,'a','f')(1,'a','g')(1,'a','h')(1,'a','i')(1,'a','j')(1,'a','k')(1,'a','l')(1,'a','m')(1,'a','n')(1,'a','o')(1,'a','p')(1,'a','q')(1,'a','r')(1,'a','s')(1,'a','t')(1,'a','u')(1,'a','v')(1,'a','w')(1,'a','x')(1,'a','y')(1,'a','z')(1,'b','a')(1,'b','b')(1,'b','c')(1,'b','d')(1,'b','e')(1,'b','f')(1,'b','g')(1,'b','h')(1,'b','i')(1,'b','j')(1,'b','k')(1,'b','l')(1,'b','m')(1,'b','n')(1,'b','o')(1,'b','p')(1,'b','q')(1,'b','r')(1,'b','s')(1,'b','t')(1,'b','u')(1,'b','v')(1,'b','w')(1,'b','x')(1,'b','y')
+doyougnu@Voltron ~/P/o/tutorial_code> head "tmp"
+(1,'a','a')
+(1,'a','b')
+(1,'a','c')
+(1,'a','d')
+(1,'a','e')
+(1,'a','f')
+(1,'a','g')
+(1,'a','h')
+(1,'a','i')
+(1,'a','j')
+
+doyougnu@Voltron ~/P/o/tutorial_code> tail "tmp"
+(200,'z','q')
+(200,'z','r')
+(200,'z','s')
+(200,'z','t')
+(200,'z','u')
+(200,'z','v')
+(200,'z','w')
+(200,'z','x')
+(200,'z','y')
+(200,'z','z')
 ```
 
 And we can read in all the data in "tmp" using the `input` function like this:
@@ -349,7 +374,7 @@ Prelude> :t input
 input :: Turtle.FilePath -> Shell Line
 
 main :: IO ()
-main = view 2 $$ input "tmp" -- will print the whole file because we consume the stream immediately
+main = view $$ input "tmp" -- will print the whole file because we consume the stream immediately
 ```
 
 ### Folding over streams
@@ -387,7 +412,7 @@ Prelude> sumStream [1..200]
 
 -- An average, defined Applicatively, is the sum over the count
 average :: Fold Double Double
-average = (/) <$> L.sum <*> L.genericLength
+average = (/) <$$> L.sum <*> L.genericLength
 
 avgStream :: (Foldable f, Fractional a) => f a -> a
 avgStream = L.fold average
@@ -397,9 +422,69 @@ Prelude> avgStream [1..200]
 100.5
 
 -- Now we can combine them, also using applicatives
-Prelude> L.fold ((,) <$> L.sum <*> average) [1..200]
+Prelude> L.fold ((,) <$$> L.sum <*> average) [1..200]
 (20100.0,100.5)
 ```
 
 In the same way we can use folds over the `Shell` type because the `Shell` type
-in turtle is a stream. First
+in turtle is a stream. Let's say we want to calculate the sum and average of the
+first element for every tuple in the "tmp" file we wrote to earlier. Well we'll
+first have to define a fold that can access the 3-tuple like so:
+
+```hs
+sumAvg = L.premap fst' ((,) <$$> L.sum <*> average)
+  where fst' (x,_,_) = x
+```
+
+Remember that we are defining a fold, that is that the **type** of `sumAvg` is
+going `Fold (Double, a, b) (Double, Double)` because we are taking a 3-tuple,
+just looking at the first argument and calculating the sum and average of that
+element, hence the type of the first element must be `Double` or else we cannot
+call these numeric functions on it. Consequently this leaves the other two types
+in the tuple ambiguous which is fine. Then our fold is **producing** a 2-tuple
+of two `Double`'s. Let's test this out on some data before we get the data from
+the file:
+
+```hs
+Prelude> L.fold sumAvg $$ (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['b'..'w']
+(1.14972e7,100.5)
+```
+
+Awesome. But how long did it take?
+
+```hs
+:set +s -- sets ghci to time any computation
+Prelude> L.fold sumAvg $$ (,,) <$$> [1..200] <*> ['a'..'z'] <*> ['b'..'w']
+(1.14972e7,100.5)
+(0.04 secs, 43,027,872 bytes)
+```
+
+Not too shabby, what about something really big though?
+
+```hs
+Prelude> L.fold sumAvg $$ (,,) <$$> [1..20000] <*> ['a'..'z'] <*> ['b'..'w']
+(1.1440572e11,10000.5)
+(3.57 secs, 4,221,787,176 bytes)
+```
+well that really blew up! What if we compile it?
+
+```
+-- Notice 200K instead of 20K
+main :: IO ()
+main = do let x = L.fold sumAvg $$ (,,) <$$> [1..200000] <*> ['a'..'z'] <*> ['b'..'w']
+          print x
+
+
+~/P/o/tutorial_code> time ./Tut
+(1.14400572e13,100000.5)
+0.80user 0.00system 0:00.80elapsed 99%CPU (0avgtext+0avgdata 4324maxresident)k
+```
+
+Much better. So let's close the loop sort of speak and write our `sumAvg`
+script. We need to read in the file to get a stream, and then we'll have to
+parse that file to get the data we want, and then fold over that stream calling
+`L.fold sumAvg`. Pretty simple, here we go:
+
+```
+
+```

@@ -76,9 +76,9 @@ programming languages course.
 
 ```hs
 sem :: Exp -> Env DVal -> Maybe DVal
-sem (Lit i) _ = Just $ DI i
+sem (Lit i) _ = Just $$ DI i
 sem (Add l r) st = case (sem l st, sem r st) of
-                      (Just (DI i), Just (DI j)) -> Just . DI $ i + j
+                      (Just (DI i), Just (DI j)) -> Just . DI $$ i + j
                       _                          -> Nothing
 sem (Let x e in') st = case sem e st of
                        Just v -> sem in' (M.insert x v st)
@@ -116,10 +116,10 @@ directly. Here is what the `sem` function would look like using do notation:
 ```hs
 -- | Semantic function.
 semMaybe :: Exp -> Env DVal -> Maybe DVal
-semMaybe (Lit i)    _ = return $ DI i
+semMaybe (Lit i)    _ = return $$ DI i
 semMaybe (Add l r) st = do (DI l') <- semMaybe l st
                             (DI r') <- semMaybe r st
-                            return . DI $ l' + r'
+                            return . DI $$ l' + r'
 semMaybe (Let x e in') st = do v <- semMaybe e st
                                 semMaybe in' (M.insert x v st)
 semMaybe (Ref x)     m = M.lookup x m
@@ -318,12 +318,12 @@ something like this:
 type BadEnv a = State (Env DVal) (Maybe a)
 
 sem'' :: Exp -> BadEnv DVal
-sem'' (Lit i) = return . Just $ DI i
+sem'' (Lit i) = return . Just $$ DI i
 sem'' (Add l r) = do (Just (DI l'')) <- sem'' l
                       (Just (DI r'')) <- sem'' r
-                      return . Just . DI $ l'' + r''
+                      return . Just . DI $$ l'' + r''
 sem'' (Let x b e) = do res <- sem'' b
-                       modify $ M.insert x res
+                       modify $$ M.insert x res
                        sem'' e
 ...
 ```
@@ -374,20 +374,20 @@ Alright, let's write our `sem` function using our monad transformer stack:
 
 ```hs
 sem' :: Exp -> Env' DVal
-sem' (Lit i) = return $ DI i
+sem' (Lit i) = return $$ DI i
 sem' (Add l r) = do DI l' <- sem' l
                     DI r' <- sem' r
-                    return . DI $ l' + r'
+                    return . DI $$ l' + r'
 sem' (Let x b e) = do res <- sem' b
-                      modify $ M.insert x res
+                      modify $$ M.insert x res
                       sem' e
 sem' (Ref x) = do st <- get
-                   lift $ M.lookup x st
-sem' (Fun x e)   = return $ DF x e
+                   lift $$ M.lookup x st
+sem' (Fun x e)   = return $$ DF x e
 sem' (App l r)   = do st <- get
                       DF x e <- sem' l
                       v <- sem' r
-                      modify $ M.insert x v
+                      modify $$ M.insert x v
                       sem' e
 ```
 

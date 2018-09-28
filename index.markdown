@@ -18,7 +18,7 @@ members' requests.
 
 ### When we meet
 **Where**: KEC 1005<br/>
-**When**: Every Monday @ 6:00 pm
+**When**: Every Monday @ 3:00 pm
 
 ### How to Participate
 Participation is voluntary and non-compulsory, you can just show up and start
